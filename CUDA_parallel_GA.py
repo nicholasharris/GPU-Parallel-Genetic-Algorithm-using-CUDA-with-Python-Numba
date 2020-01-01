@@ -1,4 +1,4 @@
-#-------- Test file for Python CUDA using Numba  ---------#
+#-------- Basic implementation of Genetic Algorithm for Python CUDA using Numba  ---------#
 
 import numpy as np
 from numba import cuda
