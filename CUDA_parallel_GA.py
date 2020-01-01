@@ -23,11 +23,12 @@ def eval_genomes_kernel(chromosomes, fitnesses, pop_length, chrom_length):
   pos = tx + ty * bw
   if pos < pop_length:  # Check array boundaries
   # in this example the fitness of an individual is computed by an arbitary set of algebraic operations on the chromosome
-    for i in range(3000):
+    num_loops = 3000
+    for i in range(num_loops):
       fitnesses[pos] += chromosomes[pos*chrom_length + 1] # do the fitness evaluation
-    for i in range(3000):
+    for i in range(num_loops):
       fitnesses[pos] -= chromosomes[pos*chrom_length + 2]
-    for i in range(3000):
+    for i in range(num_loops):
       fitnesses[pos] += chromosomes[pos*chrom_length + 3]
 
     if (fitnesses[pos] < 0):
@@ -38,11 +39,12 @@ def eval_genomes_kernel(chromosomes, fitnesses, pop_length, chrom_length):
 def eval_genomes_plain(chromosomes, fitnesses):
   for i in range(len(chromosomes)):
     # in this example the fitness of an individual is computed by an arbitary set of algebraic operations on the chromosome
-    for j in range(3000):
+    num_loops = 3000
+    for j in range(num_loops):
       fitnesses[i] += chromosomes[i][1] # do the fitness evaluation
-    for j in range(3000):
+    for j in range(num_loops):
       fitnesses[i] -= chromosomes[i][2]
-    for j in range(3000):
+    for j in range(num_loops):
       fitnesses[i] += chromosomes[i][3]
 
     if (fitnesses[i] < 0):
@@ -121,10 +123,10 @@ def next_generation(chromosomes, fitnesses):
       new_chromosomes[i] = child_genome
 
   #Replace old chromosomes with new
-  chromosomes = new_chromosomes
+  for i in range(len(chromosomes)):
+    for j in range(len(chromosomes[0])):
+      chromosomes[i][j] = new_chromosomes[i][j]
 
-  #Erase fitnesses
-  fitnesses = np.zeros(len(chromosomes), dtype = np.float32)
       
   
 #-------- Initialize Population  ---------#
@@ -138,8 +140,7 @@ for i in range(pop_size):
   for j in range(chrom_size):
     chromosomes[i][j] = random.uniform(0,1) #random float between 0.0 and 1.0
 
-
-#-------- Measure time to perform some generations of the Genetic Algorithm without CUDA  ---------#
+#-------- Measure time to perform 10 generations of the Genetic Algorithm without CUDA  ---------#
 
 print("NO CUDA:")
 start = time.time()
@@ -148,13 +149,14 @@ for i in range(num_generations):
   print("Gen " + str(i) + "/" + str(num_generations))
   eval_genomes_plain(chromosomes, fitnesses)
   next_generation(chromosomes, fitnesses) #Performs selection, mutation, and crossover operations to create new generation
+  fitnesses = np.zeros(pop_size, dtype=np.float32) #Wipe fitnesses
+
   
 end = time.time()
 print("time elapsed: " + str((end-start)))
-print("First chromosome: " + str(chromosomes[0]))
+print("First chromosome: " + str(chromosomes[0])) #To show computations were the same between both tests
 
 
-#-------------------------------------------------------#
 #-------- Prepare kernel ---------#
 # Set block & thread size
 threads_per_block = 256
@@ -168,17 +170,20 @@ for i in range(pop_size):
   for j in range(chrom_size):
     chromosomes[i][j] = random.uniform(0,1) #random float between 0.0 and 1.0
 
-#-------- Measure time to perform some generations of the Genetic Algorithm with CUDA  ---------#
+#-------- Measure time to perform 10 generations of the Genetic Algorithm with CUDA  ---------#
 print("CUDA:")
 start = time.time()
 # Genetic Algorithm on GPU
 for i in range(num_generations):
   print("Gen " + str(i) + "/" + str(num_generations))
   chromosomes_flat = chromosomes.flatten()
+  
   eval_genomes_kernel[blocks_per_grid, threads_per_block](chromosomes_flat, fitnesses, pop_size, chrom_size)
   next_generation(chromosomes, fitnesses) #Performs selection, mutation, and crossover operations to create new generation
+  fitnesses = np.zeros(pop_size, dtype=np.float32) # Wipe fitnesses
+
   
 end = time.time()
 print("time elapsed: " + str((end-start)))
-print("First chromosome: " + str(chromosomes[0]))
+print("First chromosome: " + str(chromosomes[0])) #To show computations were the same between both tests
 #-------------------------------------------------------# 
