@@ -139,7 +139,7 @@ for i in range(pop_size):
     chromosomes[i][j] = random.uniform(0,1) #random float between 0.0 and 1.0
 
 
-#-------- Measure time to perform 10 generations of the Genetic Algorithm without CUDA  ---------#
+#-------- Measure time to perform some generations of the Genetic Algorithm without CUDA  ---------#
 
 print("NO CUDA:")
 start = time.time()
@@ -168,7 +168,7 @@ for i in range(pop_size):
   for j in range(chrom_size):
     chromosomes[i][j] = random.uniform(0,1) #random float between 0.0 and 1.0
 
-#-------- Measure time to perform 10 generations of the Genetic Algorithm with CUDA  ---------#
+#-------- Measure time to perform some generations of the Genetic Algorithm with CUDA  ---------#
 print("CUDA:")
 start = time.time()
 # Genetic Algorithm on GPU
