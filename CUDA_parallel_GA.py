@@ -1,4 +1,4 @@
-#-------- Basic implementation of Genetic Algorithm for Python CUDA using Numba  ---------#
+#-------- Implementation of basic GPU-parallel Genetic Algorithm for with python CUDA using Numba  ---------#
 
 import numpy as np
 from numba import cuda
